@@ -1,0 +1,11 @@
+{
+  "info": { "name": "CarLink Postman", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "variable": [{ "key": "BASE_URL", "value": "https://localhost:7043" }, { "key": "TOKEN", "value": "postman-test-secret" }],
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{TOKEN}}", "type": "string" }] },
+  "event": [{ "listen": "prerequest", "script": { "exec": ["throw new Error('this must never execute');"] } }],
+  "item": [{ "name": "Vehicles", "item": [
+    { "name": "List vehicles", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{BASE_URL}}/api/vehicles?page=1", "query": [{ "key": "page", "value": "1" }, { "key": "disabled", "value": "ignored", "disabled": true }] } } },
+    { "name": "Get vehicle", "request": { "method": "GET", "url": { "raw": "{{BASE_URL}}/api/vehicles/:id", "variable": [{ "key": "id", "value": "42" }] } } },
+    { "name": "Create vehicle", "request": { "method": "POST", "url": "{{BASE_URL}}/api/vehicles", "body": { "mode": "raw", "raw": "{\"vin\":\"1HGCM82633A004352\",\"make\":\"Honda\",\"model\":\"Accord\",\"year\":2023}", "options": { "raw": { "language": "json" } } } } }
+  ] }]
+}
