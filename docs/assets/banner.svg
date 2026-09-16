@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title description">
+  <title id="title">apigo — OpenAPI-native. Terminal-first.</title>
+  <desc id="description">A minimal dark terminal showing an OpenAPI import and a successful request to vehicles.get.</desc>
+  <rect width="1200" height="360" rx="18" fill="#0c1014"/>
+  <rect x="1" y="1" width="1198" height="358" rx="17" fill="none" stroke="#29323b"/>
+  <path d="m58 82 15 14-15 14" fill="none" stroke="#80e5ad" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="88" y="113" fill="#f0f4f8" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="66" font-weight="700" letter-spacing="-4">apigo</text>
+  <text x="56" y="163" fill="#80e5ad" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="13" letter-spacing="2">OPENAPI-NATIVE. TERMINAL-FIRST.</text>
+  <text x="56" y="219" fill="#e0e6ec" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600">Your API already has a spec.</text>
+  <text x="56" y="253" fill="#9caab7" font-family="Arial, Helvetica, sans-serif" font-size="21">Put it to work in your terminal.</text>
+  <text x="56" y="309" fill="#778694" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">DISCOVER  /  REQUEST  /  AUTOMATE</text>
+  <rect x="562" y="47" width="585" height="266" rx="10" fill="#141b22" stroke="#303a44"/>
+  <path d="M563 86h583" stroke="#303a44"/>
+  <circle cx="582" cy="67" r="4" fill="#53606c"/><circle cx="598" cy="67" r="4" fill="#53606c"/><circle cx="614" cy="67" r="4" fill="#53606c"/>
+  <text x="1107" y="72" fill="#778694" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">EXAMPLE WORKFLOW</text>
+  <g font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="15">
+    <text x="588" y="122" fill="#e0e6ec"><tspan fill="#80e5ad">$</tspan> apigo openapi ./swagger.json</text>
+    <text x="588" y="151" fill="#8f9daa">OpenAPI detected · collection ready</text>
+    <text x="588" y="202" fill="#e0e6ec"><tspan fill="#80e5ad">$</tspan> apigo run vehicles.get --id 42</text>
+    <text x="588" y="232" fill="#80e5ad">200 OK <tspan fill="#8f9daa">· 84ms</tspan></text>
+    <text x="588" y="278" fill="#c0cbd5">{ "id": 42, "make": "Honda" }</text>
+  </g>
+</svg>
