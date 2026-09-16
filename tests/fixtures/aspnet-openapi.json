@@ -1,0 +1,51 @@
+{
+  "openapi": "3.0.1",
+  "info": { "title": "CarLink API", "version": "v1", "description": "Representative ASP.NET Core / Swashbuckle output." },
+  "servers": [{ "url": "https://localhost:7043" }],
+  "security": [{ "BearerAuth": [] }],
+  "paths": {
+    "/api/vehicles": {
+      "get": {
+        "tags": ["Vehicles"], "operationId": "GetVehicles", "summary": "List vehicles",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 } },
+          { "name": "tags", "in": "query", "schema": { "type": "array", "items": { "type": "string" } }, "style": "form", "explode": true }
+        ],
+        "responses": { "200": { "description": "Success", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Vehicle" } }, "example": [{ "id": 42, "vin": "1HGCM82633A004352", "make": "Honda", "model": "Accord", "year": 2023 }] } } } }
+      },
+      "post": {
+        "tags": ["Vehicles"], "operationId": "CreateVehicle", "summary": "Create a vehicle",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateVehicleRequest" } } } },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Vehicle" } } } }, "400": { "description": "Validation error", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } } }
+      }
+    },
+    "/api/vehicles/{id}": {
+      "parameters": [{ "$ref": "#/components/parameters/VehicleId" }],
+      "get": { "tags": ["Vehicles"], "operationId": "GetVehicleById", "responses": { "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Vehicle" } } } }, "404": { "description": "Not found" } } },
+      "put": { "tags": ["Vehicles"], "operationId": "UpdateVehicle", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateVehicleRequest" } } } }, "responses": { "204": { "description": "Updated" } } },
+      "delete": { "tags": ["Vehicles"], "operationId": "DeleteVehicle", "responses": { "204": { "description": "Deleted" } } }
+    },
+    "/api/auth/login": {
+      "post": { "tags": ["Auth"], "operationId": "Login", "security": [], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } } }, "responses": { "200": { "description": "Authenticated", "content": { "application/json": { "schema": { "type": "object", "properties": { "token": { "type": "string" } } } } } } } }
+    },
+    "/health": { "get": { "tags": ["Health"], "operationId": "Check", "security": [], "responses": { "200": { "description": "Healthy" } } } }
+  },
+  "components": {
+    "parameters": { "VehicleId": { "name": "id", "in": "path", "required": true, "description": "Vehicle identifier", "schema": { "type": "integer", "format": "int64", "minimum": 1 } } },
+    "securitySchemes": { "BearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } },
+    "schemas": {
+      "CreateVehicleRequest": { "type": "object", "additionalProperties": false, "required": ["vin", "make", "model", "year"], "properties": {
+        "vin": { "type": "string", "minLength": 17, "maxLength": 17, "example": "1HGCM82633A004352" },
+        "make": { "type": "string", "minLength": 1, "example": "Honda" }, "model": { "type": "string", "minLength": 1, "example": "Accord" },
+        "year": { "type": "integer", "minimum": 1886, "maximum": 2100, "example": 2023 },
+        "status": { "type": "string", "enum": ["active", "sold"] },
+        "owner": { "allOf": [{ "$ref": "#/components/schemas/User" }], "nullable": true }
+      } },
+      "Vehicle": { "type": "object", "required": ["id", "vin"], "properties": { "id": { "type": "integer", "format": "int64", "readOnly": true }, "vin": { "type": "string" }, "make": { "type": "string" }, "model": { "type": "string" }, "year": { "type": "integer" } } },
+      "User": { "type": "object", "required": ["id", "name"], "properties": { "id": { "type": "string", "format": "uuid", "readOnly": true }, "name": { "type": "string" }, "email": { "type": "string", "format": "email", "nullable": true }, "manager": { "$ref": "#/components/schemas/User" } } },
+      "LoginRequest": { "type": "object", "required": ["email", "password"], "properties": { "email": { "type": "string", "format": "email" }, "password": { "type": "string", "format": "password", "writeOnly": true, "minLength": 1 } } },
+      "ProblemDetails": { "type": "object", "properties": { "type": { "type": "string", "nullable": true }, "title": { "type": "string", "nullable": true }, "status": { "type": "integer", "format": "int32", "nullable": true }, "detail": { "type": "string", "nullable": true }, "traceId": { "type": "string" } }, "additionalProperties": {} }
+    }
+  }
+}

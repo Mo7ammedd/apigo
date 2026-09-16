@@ -1,0 +1,14 @@
+openapi: 3.0.3
+info: {title: Reference API, version: v1}
+servers: [{url: 'http://localhost:8080'}]
+paths:
+  /users:
+    post:
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: './schemas.yaml#/User'}
+      responses:
+        '201': {description: Created}
