@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+*.tgz
+*.db
+*.db-*
+.env
+.env.*
+!.env.example
+secret.key
+*.pem
+.apigo/
