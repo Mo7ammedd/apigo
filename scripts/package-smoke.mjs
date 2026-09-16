@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { access, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,7 +42,10 @@ try {
   assert(shipped.includes('README.md'));
   assert(shipped.includes('LICENSE'));
   assert(!shipped.some(path => path.startsWith('tests/') || path.includes('secret.key') || path.endsWith('.db')));
-  await npm(['install', '--prefix', installed, '--ignore-scripts', '--no-audit', '--no-fund', archive]);
+  await mkdir(installed);
+  // Exercise a real native dependency install, including npm 12's script policy.
+  await writeFile(join(installed, 'package.json'), JSON.stringify({ private: true, allowScripts: { 'better-sqlite3': true } }));
+  await npm(['install', '--prefix', installed, '--no-audit', '--no-fund', archive]);
   const packageRoot = join(installed, 'node_modules', 'apigo');
   const pkg = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'));
   assert.equal(pkg.bin.apigo, './dist/index.js');

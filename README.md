@@ -58,6 +58,8 @@ npm pack
 npm install -g ./apigo-0.1.0.tgz
 ```
 
+On npm 12+, global installs require an explicit native install-script allowance: `npm install -g ./apigo-0.1.0.tgz --allow-scripts=better-sqlite3`. For a published release, use the same flag with `npm install -g apigo` or `npx --allow-scripts=better-sqlite3 apigo`. Repository installs declare the required SQLite/esbuild script policy in `package.json`.
+
 After this release is published, the global and one-off entry points are:
 
 ```bash
@@ -497,7 +499,7 @@ npm pack --dry-run
 npm publish --access public
 ```
 
-`prepack` builds `dist/index.js`, preserves `#!/usr/bin/env node`, and marks the entry executable. The manifest exposes `"bin": { "apigo": "./dist/index.js" }`; no global runtime dependency beyond Node.js is required. Dependencies include platform-native SQLite binaries for supported systems.
+`prepack` builds `dist/index.js`, preserves `#!/usr/bin/env node`, and marks the entry executable. The manifest exposes `"bin": { "apigo": "./dist/index.js" }`; no global runtime dependency beyond Node.js is required. SQLite downloads prebuilt binaries for supported Node/platform combinations; a source-build fallback requires a C++ toolchain. The MVP uses the 12.x SQLite driver line for compatibility with npm versions shipped with Node.js 22.
 
 ## License
 
