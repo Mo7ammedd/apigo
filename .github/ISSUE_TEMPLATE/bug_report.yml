@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a reproducible CLI problem.
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Use disposable data. Remove tokens, cookies, passwords, private URLs, and customer payloads from examples."
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Describe the command, expected result, and actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include a small specification or request against a local test server.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "apigo 0.1.0, Node.js 22.x, operating system"
+    validations:
+      required: true

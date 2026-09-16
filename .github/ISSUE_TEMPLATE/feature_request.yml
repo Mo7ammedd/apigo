@@ -1,0 +1,19 @@
+name: Feature request
+description: Propose a concrete developer workflow improvement.
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: The workflow
+      description: What are you trying to accomplish, and what is difficult today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include example commands and expected output when useful.
+    validations:
+      required: true
