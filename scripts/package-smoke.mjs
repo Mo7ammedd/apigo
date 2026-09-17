@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -22,7 +23,7 @@ function run(command, args, options = {}) {
     child.stderr.on('data', chunk => { stderr += chunk.toString(); });
     child.on('error', reject);
     child.on('close', code => {
-      if (code !== 0) reject(new Error(`Package verification command failed (${code}): ${args.join(' ')}\n${stderr}`));
+      if (code !== (options.expectedCode ?? 0)) reject(new Error(`Package verification command failed (${code}): ${args.join(' ')}\n${stderr}`));
       else resolve({ stdout, stderr });
     });
   });
@@ -43,17 +44,33 @@ try {
   assert(shipped.includes('LICENSE'));
   assert(!shipped.some(path => path.startsWith('tests/') || path.includes('secret.key') || path.endsWith('.db')));
   await mkdir(installed);
-  // Exercise a real native dependency install, including npm 12's script policy.
+  // Exercise an install with native scripts skipped, then the supported rebuild.
   await writeFile(join(installed, 'package.json'), JSON.stringify({ private: true, allowScripts: { 'better-sqlite3': true } }));
-  await npm(['install', '--prefix', installed, '--no-audit', '--no-fund', archive]);
+  await npm(['install', '--prefix', installed, '--ignore-scripts', '--no-audit', '--no-fund', archive]);
   const packageRoot = join(installed, 'node_modules', manifest.name);
   const pkg = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'));
   assert.equal(pkg.bin.apigo, './dist/index.js');
   const entry = join(packageRoot, 'dist', 'index.js');
   assert((await readFile(entry, 'utf8')).startsWith('#!/usr/bin/env node\n'));
-  const cli = args => run(process.execPath, [entry, ...args]);
+  const cli = (args, options) => run(process.execPath, [entry, ...args], options);
   assert.equal((await cli(['--version'])).stdout.trim(), pkg.version);
   assert((await cli(['--help'])).stdout.includes('openapi'));
+  const missingNative = await cli(['config', 'list', '--json'], { expectedCode: 2 });
+  assert.equal(missingNative.stdout, '');
+  assert(missingNative.stderr.includes('SQLITE_UNAVAILABLE'));
+  assert(missingNative.stderr.includes('--allow-scripts=better-sqlite3'));
+  assert(!missingNative.stderr.includes('permissions'));
+  const sqlitePackage = dirname(createRequire(entry).resolve('better-sqlite3/package.json'));
+  const nativeBinary = join(sqlitePackage, 'build', 'Release', 'better_sqlite3.node');
+  await mkdir(dirname(nativeBinary), { recursive: true });
+  await writeFile(nativeBinary, 'not a native module');
+  try {
+    const incompatibleNative = await cli(['config', 'list', '--json'], { expectedCode: 2 });
+    assert.equal(incompatibleNative.stdout, '');
+    assert(incompatibleNative.stderr.includes('SQLITE_UNAVAILABLE'));
+    assert(incompatibleNative.stderr.includes('--allow-scripts=better-sqlite3'));
+  } finally { await rm(nativeBinary); }
+  await npm(['rebuild', '--prefix', installed, 'better-sqlite3', '--no-audit', '--no-fund']);
 
   const specification = JSON.parse(await readFile(join(project, 'tests', 'fixtures', 'aspnet-openapi.json'), 'utf8'));
   server = createServer((request, response) => {
@@ -77,11 +94,20 @@ try {
   const npx = await run(process.execPath, [npxCli, '--offline', '--prefix', installed, 'apigo', '--version'], { cwd: installed });
   assert.equal(npx.stdout.trim(), pkg.version);
 
+  const globalPrefix = join(temporary, 'global');
+  await npm(['install', '--global', '--prefix', globalPrefix, '--ignore-scripts', '--no-audit', '--no-fund', archive]);
+  const globalEntry = process.platform === 'win32' ? join(globalPrefix, 'node_modules', pkg.name, 'dist', 'index.js') : join(globalPrefix, 'lib', 'node_modules', pkg.name, 'dist', 'index.js');
+  const missingGlobalNative = await run(process.execPath, [globalEntry, 'config', 'list', '--json'], { expectedCode: 2 });
+  assert(missingGlobalNative.stderr.includes('SQLITE_UNAVAILABLE'));
+  await npm(['rebuild', '--global', '--prefix', globalPrefix, 'better-sqlite3', '--allow-scripts=better-sqlite3', '--no-audit', '--no-fund']);
+  const globalConfig = await run(process.execPath, [globalEntry, 'config', 'list', '--json']);
+  JSON.parse(globalConfig.stdout);
+
   await npm(['link', '--ignore-scripts', '--no-audit', '--no-fund'], { env: { npm_config_prefix: linked } });
   const linkEntry = process.platform === 'win32' ? join(linked, 'node_modules', pkg.name, 'dist', 'index.js') : join(linked, 'lib', 'node_modules', pkg.name, 'dist', 'index.js');
   assert.equal((await run(process.execPath, [linkEntry, '--version'])).stdout.trim(), pkg.version);
   if (process.platform !== 'win32') assert.equal((await run(join(linked, 'bin', 'apigo'), ['--version'])).stdout.trim(), pkg.version);
-  console.log(`Package verified: ${pkg.name}@${pkg.version}; tarball install, executable, SQLite import/run, saved replay, npx, and npm link.`);
+  console.log(`Package verified: ${pkg.name}@${pkg.version}; native module diagnostics, project/global rebuilds, tarball install, executable, SQLite import/run, saved replay, npx, and npm link.`);
 } finally {
   if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
   await rm(temporary, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });

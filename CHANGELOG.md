@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Report missing or incompatible SQLite native modules with a rebuild command instead of a misleading storage-permissions error.
+- Make npm 12's required native installer allowance explicit in installation instructions.
+
 ## 0.1.0 — MVP
 
 Published on September 17, 2026 as [@mo7ammedd/apigo@0.1.0](https://www.npmjs.com/package/@mo7ammedd/apigo/v/0.1.0).

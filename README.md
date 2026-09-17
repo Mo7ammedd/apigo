@@ -41,20 +41,32 @@ Requires **Node.js 22 or newer**. Development and CI use the latest supported No
 
 The npm package is [@mo7ammedd/apigo](https://www.npmjs.com/package/@mo7ammedd/apigo), and it installs the `apigo` command. See the [changelog](CHANGELOG.md) for release notes.
 
+With **npm 12 or newer**, allow SQLite's native installer explicitly:
+
+```bash
+npm install -g @mo7ammedd/apigo --allow-scripts=better-sqlite3
+```
+
+With npm 10 or 11:
+
 ```bash
 npm install -g @mo7ammedd/apigo
+```
 
+Then run:
+
+```bash
 apigo --help
 apigo --version
 ```
 
-On npm 12+, global installs require an explicit native install-script allowance: `npm install -g @mo7ammedd/apigo --allow-scripts=better-sqlite3`. For a one-off run, use `npx --allow-scripts=better-sqlite3 @mo7ammedd/apigo --help`. Repository installs declare the required SQLite/esbuild script policy in `package.json`.
-
-To run without a global install:
+To run without a global install on npm 12+:
 
 ```bash
-npx @mo7ammedd/apigo --help
+npx --allow-scripts=better-sqlite3 @mo7ammedd/apigo --help
 ```
+
+Omit `--allow-scripts=better-sqlite3` on npm 10/11. Repository installs declare the required SQLite/esbuild script policy in `package.json`.
 
 To install from this repository:
 
@@ -68,18 +80,30 @@ To install the distributable without a development checkout:
 
 ```bash
 npm pack
-npm install -g ./mo7ammedd-apigo-0.1.0.tgz
+npm install -g ./mo7ammedd-apigo-0.1.0.tgz --allow-scripts=better-sqlite3
 ```
 
-Use the same `--allow-scripts=better-sqlite3` flag for tarball installs on npm 12+.
+Omit `--allow-scripts=better-sqlite3` on npm 10/11.
+
+### SQLite installation errors
+
+`SQLITE_UNAVAILABLE` means SQLite's native module is missing or incompatible with the active Node.js version. Version `0.1.0` can report this problem as `DATABASE_ERROR` with a misleading directory-permissions hint.
+
+For a global install, rebuild the native module:
+
+```bash
+npm rebuild -g better-sqlite3 --allow-scripts=better-sqlite3
+```
+
+For a local project, add `"better-sqlite3": true` to the project's `allowScripts` object in `package.json`, then run `npm rebuild better-sqlite3`. npm 12 does not accept the `--allow-scripts` command-line flag for project-scoped installs or rebuilds.
+
+The rebuild needs write access to npm's install directory; use the same administrator privileges as the original installation if required. Run `apigo` as your regular user.
 
 ## Quick start
 
-On npm 12+, add `--allow-scripts=better-sqlite3` to the install command below.
+After [installing apigo](#installation):
 
 ```bash
-npm install -g @mo7ammedd/apigo
-
 apigo openapi https://localhost:7043/swagger/v1/swagger.json
 
 apigo run vehicles.list
@@ -467,7 +491,7 @@ npm run build
 npm run test:package
 ```
 
-The package smoke test packs the distributable, installs it in a temporary prefix, and checks the installed executable, SQLite-backed import/run workflow, `npx` resolution, and `npm link`. The installation checks use the local tarball.
+The package smoke test packs the distributable, checks missing/incompatible native-module diagnostics, rebuilds SQLite for project/global installs, and verifies the installed executable, SQLite-backed import/run workflow, `npx` resolution, and `npm link`. The installation checks use the local tarball.
 
 ```text
 src/

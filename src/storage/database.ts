@@ -1,7 +1,7 @@
 import { chmodSync } from 'node:fs';
 import Database from 'better-sqlite3';
 import type { StoragePaths } from '../config/paths.js';
-import { ApigoError } from '../core/errors.js';
+import { ApigoError, errorCode } from '../core/errors.js';
 import type { ApiRecord, HistoryEntry, SavedRequest } from '../core/types.js';
 import { slug } from '../utils/objects.js';
 import { privateFile, Vault } from './vault.js';
@@ -29,6 +29,10 @@ export class Store {
       migrate(this.db);
     } catch (error) {
       if (error instanceof ApigoError) throw error;
+      if (error instanceof Error && (error.message.startsWith('Could not locate the bindings file.') || errorCode(error) === 'ERR_DLOPEN_FAILED')) {
+        throw new ApigoError('SQLITE_UNAVAILABLE', 'SQLite could not load its native module.', 2,
+          'For a global install, run npm rebuild -g better-sqlite3 --allow-scripts=better-sqlite3. For a local project, allow better-sqlite3 in package.json allowScripts and run npm rebuild better-sqlite3.');
+      }
       throw new ApigoError('DATABASE_ERROR', 'Could not open local storage.', 2, 'Check directory permissions and available disk space.');
     }
   }
