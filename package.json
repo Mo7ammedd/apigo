@@ -1,5 +1,5 @@
 {
-  "name": "apigo",
+  "name": "@mo7ammedd/apigo",
   "version": "0.1.0",
   "description": "An OpenAPI-native API client for your terminal.",
   "type": "module",
@@ -7,6 +7,7 @@
     "apigo": "./dist/index.js"
   },
   "files": ["dist", "docs/assets", "README.md", "CHANGELOG.md", "LICENSE"],
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
   "engines": { "node": ">=22" },
   "license": "MIT",
   "author": "mo7ammedd",

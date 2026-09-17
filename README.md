@@ -11,9 +11,9 @@ Discover endpoints. Generate requests. Stay in your development workflow.
 ![TypeScript](https://img.shields.io/badge/TypeScript-ESM-303a44?style=flat-square&logo=typescript&logoColor=white)
 ![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0%20%7C%203.1-303a44?style=flat-square)
 [![MIT license](https://img.shields.io/badge/license-MIT-303a44?style=flat-square)](LICENSE)
-![Release](https://img.shields.io/badge/release-0.1.0_preview-303a44?style=flat-square)
+[![npm version](https://img.shields.io/npm/v/%40mo7ammedd%2Fapigo?style=flat-square&logo=npm&color=303a44&labelColor=303a44)](https://www.npmjs.com/package/@mo7ammedd/apigo)
 
-[Quick start](#quick-start) · [OpenAPI](#openapi-and-swagger) · [Commands](#command-reference) · [Security](#security-model) · [Development](#development)
+[npm package](https://www.npmjs.com/package/@mo7ammedd/apigo) · [Quick start](#quick-start) · [OpenAPI](#openapi-and-swagger) · [Requests](#requests-and-overrides) · [Security](#security-model) · [Development](#development)
 
 </div>
 
@@ -39,45 +39,53 @@ There is no web frontend or hosted account. Your API definitions and settings st
 
 Requires **Node.js 22 or newer**. Development and CI use the latest supported Node.js 22/24 releases.
 
-> **Release status:** this repository contains the `0.1.0` MVP. It has not been published to npm. The registry already has an unrelated `apigo@0.0.0`; publishing this implementation as `apigo` requires access to that package name. Until then, install this repository locally or from its packed tarball.
+The npm package is [@mo7ammedd/apigo](https://www.npmjs.com/package/@mo7ammedd/apigo), and it installs the `apigo` command. See the [changelog](CHANGELOG.md) for release notes.
 
 ```bash
-# From this repository
-npm ci
-npm run build
-npm link
+npm install -g @mo7ammedd/apigo
 
 apigo --help
 apigo --version
+```
+
+On npm 12+, global installs require an explicit native install-script allowance: `npm install -g @mo7ammedd/apigo --allow-scripts=better-sqlite3`. For a one-off run, use `npx --allow-scripts=better-sqlite3 @mo7ammedd/apigo --help`. Repository installs declare the required SQLite/esbuild script policy in `package.json`.
+
+To run without a global install:
+
+```bash
+npx @mo7ammedd/apigo --help
+```
+
+To install from this repository:
+
+```bash
+npm ci
+npm run build
+npm link
 ```
 
 To install the distributable without a development checkout:
 
 ```bash
 npm pack
-npm install -g ./apigo-0.1.0.tgz
+npm install -g ./mo7ammedd-apigo-0.1.0.tgz
 ```
 
-On npm 12+, global installs require an explicit native install-script allowance: `npm install -g ./apigo-0.1.0.tgz --allow-scripts=better-sqlite3`. For a published release, use the same flag with `npm install -g apigo` or `npx --allow-scripts=better-sqlite3 apigo`. Repository installs declare the required SQLite/esbuild script policy in `package.json`.
-
-After this release is published, the global and one-off entry points are:
-
-```bash
-npm install -g apigo
-npx apigo --help
-```
+Use the same `--allow-scripts=better-sqlite3` flag for tarball installs on npm 12+.
 
 ## Quick start
 
+On npm 12+, add `--allow-scripts=better-sqlite3` to the install command below.
+
 ```bash
-npm install -g apigo
+npm install -g @mo7ammedd/apigo
 
 apigo openapi https://localhost:7043/swagger/v1/swagger.json
 
 apigo run vehicles.list
 ```
 
-The npm commands above assume this release has been published. For the current repository build, run the local installation steps first. Endpoint names come from your specification; `apigo api show` lists the exact commands.
+Endpoint names come from your specification; `apigo api show` lists the exact commands.
 
 ```text
 OpenAPI 3.0.1 detected
@@ -459,7 +467,7 @@ npm run build
 npm run test:package
 ```
 
-The package smoke test packs the distributable, installs it in a temporary prefix, and checks the installed executable, SQLite-backed import/run workflow, and `npx` resolution. It does not install the registry's existing `apigo` package.
+The package smoke test packs the distributable, installs it in a temporary prefix, and checks the installed executable, SQLite-backed import/run workflow, `npx` resolution, and `npm link`. The installation checks use the local tarball.
 
 ```text
 src/
@@ -487,7 +495,7 @@ The core CLI and OpenAPI workflow are implemented first. TUI browsing, multipart
 
 ## Publishing to npm
 
-Confirm ownership or publishing access to the `apigo` npm package before publishing. Repository access does not grant npm package access.
+Publishing requires npm access to `@mo7ammedd/apigo`. Sign in as `mo7ammedd` or an authorized collaborator, and use a new version for each release.
 
 ```bash
 npm whoami
@@ -495,7 +503,6 @@ npm run check
 npm run test:package
 npm pack --dry-run
 
-# Publish only after package ownership and the release version are confirmed.
 npm publish --access public
 ```
 

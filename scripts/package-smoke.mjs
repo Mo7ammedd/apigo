@@ -46,7 +46,7 @@ try {
   // Exercise a real native dependency install, including npm 12's script policy.
   await writeFile(join(installed, 'package.json'), JSON.stringify({ private: true, allowScripts: { 'better-sqlite3': true } }));
   await npm(['install', '--prefix', installed, '--no-audit', '--no-fund', archive]);
-  const packageRoot = join(installed, 'node_modules', 'apigo');
+  const packageRoot = join(installed, 'node_modules', manifest.name);
   const pkg = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'));
   assert.equal(pkg.bin.apigo, './dist/index.js');
   const entry = join(packageRoot, 'dist', 'index.js');
@@ -78,10 +78,10 @@ try {
   assert.equal(npx.stdout.trim(), pkg.version);
 
   await npm(['link', '--ignore-scripts', '--no-audit', '--no-fund'], { env: { npm_config_prefix: linked } });
-  const linkEntry = process.platform === 'win32' ? join(linked, 'node_modules', 'apigo', 'dist', 'index.js') : join(linked, 'lib', 'node_modules', 'apigo', 'dist', 'index.js');
+  const linkEntry = process.platform === 'win32' ? join(linked, 'node_modules', pkg.name, 'dist', 'index.js') : join(linked, 'lib', 'node_modules', pkg.name, 'dist', 'index.js');
   assert.equal((await run(process.execPath, [linkEntry, '--version'])).stdout.trim(), pkg.version);
   if (process.platform !== 'win32') assert.equal((await run(join(linked, 'bin', 'apigo'), ['--version'])).stdout.trim(), pkg.version);
-  console.log(`Package verified: apigo@${pkg.version}; tarball install, executable, SQLite import/run, saved replay, npx, and npm link.`);
+  console.log(`Package verified: ${pkg.name}@${pkg.version}; tarball install, executable, SQLite import/run, saved replay, npx, and npm link.`);
 } finally {
   if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
   await rm(temporary, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });

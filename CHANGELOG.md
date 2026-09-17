@@ -2,6 +2,8 @@
 
 ## 0.1.0 — MVP
 
+Published on September 17, 2026 as [@mo7ammedd/apigo@0.1.0](https://www.npmjs.com/package/@mo7ammedd/apigo/v/0.1.0).
+
 - ESM CLI for Node.js 22+, packaged with an executable npm binary.
 - Direct HTTP requests, headers, queries, bodies, timeouts, scoped TLS settings, and machine output.
 - OpenAPI 3.0/3.1 and Swagger 2.0 import from JSON, YAML, URLs, and local files.
